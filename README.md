@@ -1,12 +1,12 @@
 ### Deep Fake Detection : End to End Application
 
 ## Setup backend: 
-python -m venv myenv
-pip install -r requirements.txt
-python -m uvicorn main:app
+1. python -m venv myenv
+2. pip install -r requirements.txt
+3. python -m uvicorn main:app
 
 ## Setup fronend: 
-npm install
-npm run dev
+1. npm install
+2. npm run dev
 
 ## Still in progress...
