@@ -13,7 +13,7 @@ const ImageDetection = () => {
     const formData = new FormData();
     formData.append('file', selectedFile);
 
-    const response = await fetch('http://localhost:8000/detect-image', {
+    const response = await fetch('http://127.0.0.1:8000/predict/image', {
       method: 'POST',
       body: formData,
     });
