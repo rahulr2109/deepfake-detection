@@ -2,8 +2,9 @@
 
 ## Setup backend: 
 1. python -m venv myenv
-2. pip install -r requirements.txt
-3. python -m uvicorn main:app
+2. myenv\Scripts\activate
+3. pip install -r requirements.txt
+4. python -m uvicorn main:app
 
 ## Setup fronend: 
 1. npm install
