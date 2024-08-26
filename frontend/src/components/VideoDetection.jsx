@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Upload,
@@ -12,11 +12,26 @@ import {
 
 const VideoDetection = () => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setVideoUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [selectedFile]);
+
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("video/")) {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+      setVideoUrl(null);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -88,16 +103,29 @@ const VideoDetection = () => {
                   htmlFor="file-upload"
                   className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-indigo-400 rounded-lg cursor-pointer bg-white hover:bg-indigo-50 transition duration-300 ease-in-out"
                 >
-                  <div className="flex flex-col items-center">
-                    <Upload className="w-10 h-10 text-indigo-500 mb-2" />
-                    <span className="text-sm text-gray-600 text-center">
-                      {selectedFile
-                        ? selectedFile.name
-                        : "Click or drag to upload a video"}
-                    </span>
-                  </div>
+                  {videoUrl ? (
+                    <video
+                      src={videoUrl}
+                      controls
+                      className="max-w-full max-h-48"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <Upload className="w-10 h-10 text-indigo-500 mb-2" />
+                      <span className="text-sm text-gray-600 text-center">
+                        Click or drag to upload a video
+                      </span>
+                    </div>
+                  )}
                 </label>
               </div>
+              {selectedFile && (
+                <p className="text-sm text-gray-600">
+                  Selected file: {selectedFile.name}
+                </p>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

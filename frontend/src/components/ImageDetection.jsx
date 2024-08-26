@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Upload,
@@ -11,11 +11,29 @@ import {
 
 const ImageDetection = () => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile]);
+
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    if (file && file.type.substr(0, 5) === "image") {
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -38,7 +56,7 @@ const ImageDetection = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center p-4 md:p-8 mt-20">
+    <div className="flex items-center justify-center p-4 md:p-8 mt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,16 +105,27 @@ const ImageDetection = () => {
                   htmlFor="file-upload"
                   className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-indigo-400 rounded-lg cursor-pointer bg-white hover:bg-indigo-50 transition duration-300 ease-in-out"
                 >
-                  <div className="flex flex-col items-center">
-                    <Upload className="w-10 h-10 text-indigo-500 mb-2" />
-                    <span className="text-sm text-gray-600 text-center">
-                      {selectedFile
-                        ? selectedFile.name
-                        : "Click or drag to upload an image"}
-                    </span>
-                  </div>
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="max-w-full max-h-48 object-contain"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <Upload className="w-10 h-10 text-indigo-500 mb-2" />
+                      <span className="text-sm text-gray-600 text-center">
+                        Click or drag to upload an image
+                      </span>
+                    </div>
+                  )}
                 </label>
               </div>
+              {selectedFile && (
+                <p className="text-sm text-gray-600">
+                  Selected file: {selectedFile.name}
+                </p>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
