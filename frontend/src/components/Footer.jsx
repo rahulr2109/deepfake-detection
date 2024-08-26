@@ -1,19 +1,20 @@
-import React from 'react';
+import React from "react";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-4">
-      <div className="container mx-auto flex justify-between items-center px-4">
-        <p className="text-sm">
-          &copy; {new Date().getFullYear()} Debug Dynamo. All rights reserved.
+    <motion.footer
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-6"
+    >
+      <div className="container mx-auto flex justify-center items-center">
+        <p className="text-center text-sm lg:text-base">
+          &copy; Debug Dynamo, 2024.
         </p>
-        <div className="flex space-x-4">
-          <a href="#" className="hover:text-gray-400">Privacy Policy</a>
-          <a href="#" className="hover:text-gray-400">Terms of Service</a>
-          <a href="#" className="hover:text-gray-400">Contact Us</a>
-        </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

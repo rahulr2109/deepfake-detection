@@ -120,7 +120,7 @@ const Navbar = () => {
                   key={to}
                   to={to}
                   className="flex items-center justify-center px-4 py-3 hover:bg-pink-500 rounded-md transition-colors duration-200 mb-2"
-                  activeClassName="bg-pink-600"
+                  activeClassName="bg-violet-800"
                   onClick={toggleMenu}
                 >
                   <Icon className="w-5 h-5 mr-2" />
@@ -137,9 +137,9 @@ const Navbar = () => {
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen ">
       <Navbar />
-      <main className="container mx-auto max-w-5xl p-4 flex justify-center items-center min-h-screen">
+      <main className="container mx-auto  p-4 flex justify-center items-center min-h-screen">
         {children}
       </main>
     </div>
