@@ -42,7 +42,8 @@ const ImageDetection = () => {
         <div className="mt-6 p-4 bg-white shadow-md rounded-lg w-full">
           <h3 className="text-xl font-semibold mb-2 text-gray-700">Detection Result</h3>
           <pre className="bg-gray-100 p-4 rounded-lg text-gray-800">
-            {JSON.stringify(result, null, 2)}
+            {/* Prediction : {JSON.stringify(result, null, 2).} */}
+            Prediction : {result.prediction}
           </pre>
         </div>
       )}
