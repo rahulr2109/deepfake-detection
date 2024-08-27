@@ -3,3 +3,8 @@ uvicorn
 tensorflow
 opencv-python
 numpy
+motor
+python-multipart
+python-dotenv
+passlib
+pyjwt

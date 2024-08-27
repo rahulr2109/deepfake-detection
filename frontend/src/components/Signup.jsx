@@ -1,9 +1,19 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Lock, User, LogIn } from "lucide-react";
+import { UserPlus, Mail, Lock, User, LogIn, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../App";
 
 const Signup = () => {
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { trigger, setTrigger } = useContext(UserContext);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -19,13 +29,61 @@ const Signup = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
+
+    if (formData.password !== formData.confirmPassword) {
+      setIsLoading(false);
+      setError("Passwords don't match");
+      toast.error("Passwords don't match");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Registration failed");
+      }
+
+      const data = await response.json();
+      // console.log(data);
+      setSuccess(data.message || "Registration successful!");
+      toast.success(data.message || "Registration successful!");
+      localStorage.setItem("token", data.token);
+      setTrigger(!trigger);
+      navigate("/");
+
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      setError(error.message || "An error occurred during registration");
+      toast.error(error.message || "An error occurred during registration");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen  p-4">
+    <div className="flex items-center justify-center min-h-screen p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,7 +115,7 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 p-8 lg:p-12">
+          <div className="w-full lg:w-1/2 p-8 lg:p-12 relative">
             <h3 className="text-2xl lg:text-3xl font-bold mb-4 lg:mb-6 text-gray-800">
               Sign Up
             </h3>
@@ -110,12 +168,17 @@ const Signup = () => {
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 lg:py-3 rounded-lg text-sm lg:text-base hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105"
               >
-                Sign Up
+                {isLoading ? (
+                  <Loader className="animate-spin inline-block" />
+                ) : (
+                  "Sign Up"
+                )}
               </button>
             </form>
           </div>
         </div>
       </motion.div>
+      <ToastContainer />
     </div>
   );
 };

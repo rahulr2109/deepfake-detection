@@ -1,13 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { LogIn, UserPlus, Mail, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { LogIn, Mail, Lock, Loader } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useContext } from "react";
+import { UserContext } from "../App";
 
 const Login = () => {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setTrigger } = useContext(UserContext);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -17,10 +24,36 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Login failed");
+      }
+
+      const data = await response.json();
+      toast.success("Login successful!");
+      localStorage.setItem("token", data.token);
+      setTrigger((prev) => !prev);
+      navigate("/");
+    } catch (error) {
+      toast.error(error.message || "An error occurred during login");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <motion.div
@@ -45,7 +78,7 @@ const Login = () => {
             </div>
             <div className="flex items-center">
               <div className="bg-white rounded-full p-2 mr-4">
-                <UserPlus className="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" />
+                <LogIn className="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" />
               </div>
               <span className="text-sm lg:text-base">
                 New user?{" "}
@@ -90,7 +123,11 @@ const Login = () => {
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 lg:py-3 rounded-lg text-sm lg:text-base hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105"
               >
-                Login
+                {isLoading ? (
+                  <Loader className="animate-spin inline-block" />
+                ) : (
+                  "Login"
+                )}
               </button>
             </form>
             <div className="mt-4 lg:mt-6 text-center">
@@ -104,6 +141,7 @@ const Login = () => {
           </div>
         </div>
       </motion.div>
+      <ToastContainer />
     </div>
   );
 };

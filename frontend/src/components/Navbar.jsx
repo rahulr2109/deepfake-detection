@@ -1,10 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Home, Image, Video, LogIn, UserPlus } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  Image,
+  Video,
+  LogIn,
+  UserPlus,
+  LogOut,
+} from "lucide-react";
+// import AvatarDropdown from "./AvatarDropdown";
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../App";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+  const { trigger, setTrigger } = useContext(UserContext);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, [trigger]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -18,6 +39,13 @@ const Navbar = () => {
     { to: "/login", text: "Login", Icon: LogIn },
     { to: "/signup", text: "Sign Up", Icon: UserPlus },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/login");
+    setIsOpen(false);
+  };
 
   return (
     <motion.nav
@@ -55,21 +83,35 @@ const Navbar = () => {
             ))}
           </div>
           <div className="hidden md:flex items-center space-x-2">
-            {authMenuItems.map(({ to, text, Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className="relative overflow-hidden px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg group"
-              >
-                <span className="absolute inset-0 w-full h-full transition duration-300 group-hover:bg-gradient-to-br from-pink-400 to-purple-600"></span>
-                <span className="absolute inset-0 w-full h-full border-2 border-white rounded-full"></span>
-                <span className="relative flex items-center justify-center">
-                  <Icon className="w-4 h-4 mr-1" />
-                  <span className="relative">{text}</span>
-                </span>
-                <span className="absolute bottom-0 left-0 w-full h-1 transition-all duration-300 transform translate-y-1 bg-white group-hover:translate-y-0"></span>
-              </NavLink>
-            ))}
+            {!isAuthenticated &&
+              authMenuItems.map(({ to, text, Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className="relative overflow-hidden px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg group"
+                >
+                  <span className="absolute inset-0 w-full h-full transition duration-300 group-hover:bg-gradient-to-br from-pink-400 to-purple-600"></span>
+                  <span className="absolute inset-0 w-full h-full border-2 border-white rounded-full"></span>
+                  <span className="relative flex items-center justify-center">
+                    <Icon className="w-4 h-4 mr-1" />
+                    <span className="relative">{text}</span>
+                  </span>
+                  <span className="absolute bottom-0 left-0 w-full h-1 transition-all duration-300 transform translate-y-1 bg-white group-hover:translate-y-0"></span>
+                </NavLink>
+              ))}
+            {isAuthenticated && (
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center justify-center p-3 h-10 bg-red-500  text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-shadow duration-300 mb-2 focus:outline-none focus:ring-4 focus:ring-pink-400 focus:ring-opacity-50"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-5 h-4 mr-2" />
+                  Logout
+                </motion.button>
+              </>
+            )}
           </div>
           <button
             onClick={toggleMenu}
@@ -105,7 +147,6 @@ const Navbar = () => {
                     key={to}
                     to={to}
                     className="flex items-center px-4 py-3 hover:bg-indigo-600 rounded-md transition-colors duration-200"
-                    activeClassName="bg-indigo-700"
                     onClick={toggleMenu}
                   >
                     <Icon className="w-5 h-5 mr-2" />
@@ -115,18 +156,31 @@ const Navbar = () => {
               </div>
             </div>
             <div className="p-5 bg-indigo-900">
-              {authMenuItems.map(({ to, text, Icon }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  className="flex items-center justify-center px-4 py-3 hover:bg-pink-500 rounded-md transition-colors duration-200 mb-2"
-                  activeClassName="bg-violet-800"
-                  onClick={toggleMenu}
-                >
-                  <Icon className="w-5 h-5 mr-2" />
-                  {text}
-                </NavLink>
-              ))}
+              {!isAuthenticated &&
+                authMenuItems.map(({ to, text, Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    className="flex items-center justify-center px-4 py-3 hover:bg-pink-500 rounded-md transition-colors duration-200 mb-2"
+                    onClick={toggleMenu}
+                  >
+                    <Icon className="w-5 h-5 mr-2" />
+                    {text}
+                  </NavLink>
+                ))}
+              {isAuthenticated && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center p-3  bg-red-600 w-full text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-shadow duration-300 mb-2 focus:outline-none focus:ring-4 focus:ring-pink-400 focus:ring-opacity-50"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-5 h-5 mr-2" />
+                    Logout
+                  </motion.button>
+                </>
+              )}
             </div>
           </motion.div>
         )}
@@ -139,11 +193,12 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen ">
       <Navbar />
-      <main className="container mx-auto  p-4 flex justify-center items-center min-h-screen">
+      <main className="container mx-auto p-4 flex justify-center items-center min-h-screen">
         {children}
       </main>
     </div>
   );
 };
+
 export default Navbar;
 export { Layout };

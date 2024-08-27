@@ -41,7 +41,7 @@ const VideoDetection = () => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await fetch("http://localhost:8000/detect-video", {
+      const response = await fetch("http://localhost:8000/", {
         method: "POST",
         body: formData,
       });
@@ -109,7 +109,7 @@ const VideoDetection = () => {
                       controls
                       className="max-w-full max-h-48"
                     >
-                      Your browser does not support the video tag.
+                      browser does not support the video tag.
                     </video>
                   ) : (
                     <div className="flex flex-col items-center">
